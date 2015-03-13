@@ -32,7 +32,8 @@ app.use(session({
 var sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('./database.sqlite3');
 
-function dbInsert(user, pass, priv){
+function userInsert(user, pass, priv){
+  //TODO: Sanitization
   var cmd = 'INSERT INTO "users" ("username", "password", "salt", "priv") '
   hash(pass, function(err, salt, hash){
     if (err) throw err;
@@ -41,15 +42,113 @@ function dbInsert(user, pass, priv){
     db.run(cmd+t0+t1);
   });
 }
-dbInsert('guest','guest',0)
-dbInsert('admin','admin',1)
 
-function getUser(username, fn){
+function eventInsert(name, start, end, admin){
+  //TODO: Sanitization
+  var cmd = 'INSERT INTO "events" ("name", "start", "end", "admin") '
+  var t0 = 'SELECT "'+name+'", "'+start+'", "'+end+'", "'+admin+'"'; 
+  var t1 = 'WHERE NOT EXISTS(SELECT 1 FROM "events" WHERE name= "'+name+'");'; // DEBUG
+  db.run(cmd+t0+t1); //DEBUG
+  //db.run(cmd+t0);
+}
+
+function challengeInsert(name, flag, value, eventid) {
+  var cmd = 'INSERT INTO challenges (name, baseflag, value, eventid) ';
+  cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+eventid+'" ';
+  cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
+  db.run(cmd);
+}
+
+userInsert('guest','guest',0)
+userInsert('admin','admin',1)
+userInsert('admin2', 'admin',1)
+userInsert('supervisor','supervisor',2)
+
+eventInsert("ctf1", "now", "now", "admin");
+eventInsert("ctf2", "now", "now", "admin");
+eventInsert("oldctf", "01-15-1994 15:00", "now", "admin2");
+
+challengeInsert("sooperhard1", "lol123", "500", "1");
+challengeInsert("sooperhard1again", "lol123", "500", "1");
+challengeInsert("sooperhard2", "lol123", "500", "2");
+challengeInsert("sooperhard2again", "lol123", "500", "2");
+challengeInsert("sooperhard3", "lol123", "500", "3");
+challengeInsert("sooperhard3again", "lol123", "500", "3");
+
+function getUser(username, fn) {
   db.get('SELECT username, password, salt, priv FROM users WHERE username = ?', username, function(err, row) {
     if (!row) return fn(err);
     //console.log('Query returned with username: %s', row.username);
     return fn(null, row);
   });
+}
+
+function getEvent(name, fn) {
+  db.get('SELECT name, start, end, admin FROM events WHERE name = ?', name, function(err, row) {
+    if (!row) return fn(err);
+    return fn(null, row);
+  });
+}
+
+function getEvents(fn, user) {
+  if (user.priv == 0) {
+    //Might be broken? check for `now` as a keyword
+    db.all('SELECT id, name, start, end, admin FROM events WHERE start < \'now\'', function(err, row) {
+      if (!row) return fn(err);
+      return fn(null, row);
+    });
+  } else {
+    db.all('SELECT id, name, start, end, admin FROM events', function(err, row) {
+      if (!row) return fn(err);
+      return fn(null, row);
+    });
+  }
+}
+
+function getEventById(fn, id, user) {
+  if (user.priv == 0) {
+    //Might be broken? check for `now` as a keyword
+    db.get('SELECT id, name, start, end, admin FROM events WHERE start < \'now\' AND eventid = ?', id, function(err, row) {
+      if (!row) return fn(err);
+      return fn(null, row);
+    });
+  } else {
+    db.get('SELECT id, name, start, end, admin FROM events WHERE id = ?', id, function(err, row) {
+      if (!row) return fn(err);
+      return fn(null, row);
+    });
+  }
+}
+
+function getChallenges(fn, eventID, user) {
+  if (user.priv >= 0) {
+    //Make * more specific
+    db.all('SELECT * FROM challenges WHERE NOT EXISTS (SELECT 1 FROM SOLVES WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
+      if (!row) return fn(err);
+      return fn(null, row);
+    });
+  } 
+}
+
+function checkChallenge(fn, chalid, user, sub) {
+  if (user.priv >= 0) {
+    //sanitize
+    db.get('SELECT baseflag,secureflag FROM "challenges" WHERE id = ?', chalid, function(err, row) {
+      if (!row) return fn(err);
+      if (sub == row.baseflag) {
+        db.get('SELECT * FROM solves WHERE chalid = ? AND username = ?', chalid, user.username, function (err, row2) {
+          if (row2) return fn(err);
+          if (!row2) {
+            db.run('INSERT INTO solves (chalid, username, time) VALUES (?, ?, time("now") )', chalid, user.username);
+            db.get('SELECT * FROM solves WHERE chalid = ? AND username = ?', chalid, user.username, function (err, row3) {
+              if (!row) return fn(err);
+              return fn(null, row3);
+            });
+          }
+        }); 
+      }
+    });
+  }
 }
 
 function authenticate(name, pass, fn) {
@@ -87,47 +186,91 @@ function restrictAdmin(req, res, next) {
   }
 }
 
-app.use(multer({
-    dest: '../../private/',
-    rename: function (fieldname, filename) {
-        return filename.replace(/\W+/g, '-').toLowerCase();
-    }
-}));
-
-app.all('/private/*', function(req, res, next) {
-  restrictAdmin(req re)
-  if (req.session.user) {
-    next(); // allow the next route to run
+function restrictSuper(req, res, next) {
+  if (req.session.user && parseInt(req.session.user.priv) > 1 ) {
+    next();
   } else {
-    console.log('GET:  %s   /private/     UNAUTHORIZED', req.connection.remoteAddress);
-    // require the user to log in
-    res.redirect("/"); 
+    req.session.error = 'Access denied!';
+    res.redirect('/');
   }
-});
-app.use('/private/content', express.static(path.join(__dirname, '../../private')));
-app.use('/private/content', serveIndex(path.join(__dirname, '../../private'), {'icons': true}));
-
-app.all('/o/*', function(req, res, next) {
-  if (req.session.user && req.session.user.priv == '1') {
-    next(); // allow the next route to run
-  } else {
-    console.log(req.session.user);
-    console.log('GET:  %s   /o/           UNAUTHORIZED', req.connection.remoteAddress);
-    // require the user to log in
-    res.redirect("/"); 
-  }
-});
-app.use('/o/g', express.static(path.join(__dirname, '../../o')));
-
-app.use('/o/g', serveIndex(path.join(__dirname, '../../o'), {'icons': true}));
+}
 
 app.get('/', function(req, res) {
     //console.log('GET:  %s   /', req.connection.remoteAddress);
     res.sendFile(path.join(__dirname, 'views', 'main.html'));
 });
 
+app.get('/events', restrictCommon, function(req,res) {
+  if (req.session.user.priv > 0) {
+    res.sendFile(path.join(__dirname, 'views', 'eventsAdmin.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'eventsCommon.html'));
+  }
+});
+
+app.post('/events', restrictSuper, function(req,res) {
+  if (req.body.name) {
+    eventInsert(req.body.name, req.body.start, req.body.stop, req.body.admin);
+  }
+  res.redirect('/events');
+});
+
+app.get('/api/common/events/', restrictCommon, function(req,res) {
+  getEvents(function(err, row) {
+    res.send(row);
+  }, req.session.user);
+});
+
+app.get('/api/admin/events/', restrictAdmin, function(req,res) {
+  getEvents(function(err, row) {
+    res.send(row);
+  }, req.session.user);
+});
+
+app.post('/api/admin/challenges', restrictAdmin, function(req, res) {
+  getEventById(function(err, row) {
+    if (!row) { res.send({}); } else {
+      getChallenges(function(err, row) {
+        res.send(row);
+      }, row.id, req.session.user);
+    }
+  }, req.body.eventid, req.session.user);
+});
+
+app.post('/api/common/challenges', restrictCommon, function(req, res) {
+  getEventById(function(err, row) {
+    if (!row) { res.send({}); } else {
+      getChallenges(function(err, row) {
+        res.send(row);
+      }, row.id, req.session.user);
+    }
+  }, req.body.eventid, req.session.user);
+});
+
+app.post('/api/submit', restrictCommon, function(req, res) {
+  var sub = req.body.submission;
+  var chalid = req.body.chalid;
+  checkChallenge(function (err, row) {
+    res.send(row);
+  }, chalid, req.session.user, sub);
+});
+
+app.get('/user', restrictCommon, function(req, res) {
+  var s = getUser(req.query.name, function(err, row) {
+    if (row) {
+      res.send(row.username);
+    } else res.send("User not found :[");
+  });
+});
+
+app.get('/admin', restrictAdmin, function(req, res) {
+  res.send('ohhai admingai');
+});
+
 app.post('/', function(req, res){
   //console.log('POST: %s   /', req.connection.remoteAddress);
+
+  //TODO: Sanitize input :3
   authenticate(req.body.username, req.body.password, function(err, user){
     if (user) {
       console.log('AUTH: %s   /             user: %s', req.connection.remoteAddress,user.username);
@@ -139,7 +282,7 @@ app.post('/', function(req, res){
         // or in this case the entire user object
         req.session.user = user;
         req.session.success = 'Authenticated as ' + user.username;
-        res.redirect('/upload');
+        res.redirect('/events');
       });
     } else {
       req.session.error = 'Authentication failed, please check your '
@@ -159,32 +302,6 @@ app.get('/logout', function(req, res){
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-app.post('/api/upload', restrict, function (req, res) {
-    //console.log("POST: " + req.files.userFile.originalname);
-    res.send({file: req.files.userFile.originalname, savedAs: req.files.userFile.name});
-});
-
-app.get('/upload', restrict, function (req, res){
-    //console.log('GET:  %s   /upload       user: %s', req.connection.remoteAddress, req.session.user.username);
-    res.render('upload');
-});
-
-app.get('/download', restrict, function (req, res){
-    //console.log('GET:  %s   /download     user: %s', req.connection.remoteAddress, req.session.user.username);
-    if(req.session.user && req.session.user.priv == '1') res.send('<html><body><a href="/o/g">good stuff</a><br><a href="/private/content">other stuff</a>')
-    else res.redirect('/private/content');
-});
-
-app.get('/register', function(req, res) {
-  res.send('<!DOCTYPE html><html><head><title>register</title></head><body><form method="POST">'+
-    'user: <input type="text" name="user"><br>pass: <input type="password" name="pass"><br><button type="submit">register</button>'+
-    '</form></body></html>')
-});
-
-app.post('/register', function(req, res) {
-  res.send('Unable to create user; this process is not implemented.');
-});
 
 app.get('*', function(req, res) { // all other requests
     res.redirect('/');
