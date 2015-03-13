@@ -52,7 +52,7 @@ function eventInsert(name, start, end, admin){
   //db.run(cmd+t0);
 }
 
-function challengeInsert(name, flag, value, eventid) {
+function challengeInsert(name, flag, value, eventid) { //simple flag
   var cmd = 'INSERT INTO challenges (name, baseflag, value, eventid) ';
   cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+eventid+'" ';
   cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
@@ -108,7 +108,7 @@ function getEvents(fn, user) {
 function getEventById(fn, id, user) {
   if (user.priv == 0) {
     //Might be broken? check for `now` as a keyword
-    db.get('SELECT id, name, start, end, admin FROM events WHERE start < \'now\' AND eventid = ?', id, function(err, row) {
+    db.get('SELECT id, name, start, end, admin FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
     });
@@ -227,17 +227,7 @@ app.get('/api/admin/events/', restrictAdmin, function(req,res) {
   }, req.session.user);
 });
 
-app.post('/api/admin/challenges', restrictAdmin, function(req, res) {
-  getEventById(function(err, row) {
-    if (!row) { res.send({}); } else {
-      getChallenges(function(err, row) {
-        res.send(row);
-      }, row.id, req.session.user);
-    }
-  }, req.body.eventid, req.session.user);
-});
-
-app.post('/api/common/challenges', restrictCommon, function(req, res) {
+app.post('/api/challenges', restrictCommon, function(req, res) {
   getEventById(function(err, row) {
     if (!row) { res.send({}); } else {
       getChallenges(function(err, row) {

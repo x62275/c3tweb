@@ -7,13 +7,6 @@
 	
 </div>
 <table id = "eventTable">
-	<tr> 
-		<td> Event Name </td>
-		<td> Start </td>
-		<td> End </td>
-		<td> Admin </td>
-		<td> Go! </td>
-	</tr>
 </table>
 </div>
 </body>
@@ -53,7 +46,7 @@ function getChallenges(id) {
 	$("#events").append(s);
 
 	$.ajax({
-		url: "/api/admin/challenges",
+		url: "/api/challenges",
 		dataType: "json",
 		method: "POST",
 		data: {eventid: id}
