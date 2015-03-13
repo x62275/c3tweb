@@ -1,0 +1,26 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#progress {
+  width: 500px;
+  border: 1px solid black;
+  position: relative;
+  padding: 3px;
+}
+
+#percent {
+  position: absolute;
+  left: 50%;
+}
+
+#bar {
+  height: 20px;
+  background-color: green;
+  width: 0%;
+}

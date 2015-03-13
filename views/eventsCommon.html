@@ -1,0 +1,79 @@
+<html>
+<body>
+<div id = "events">
+<table id = "eventTable">
+	<tr> 
+		<td> Event Name </td>
+		<td> Start </td>
+		<td> End </td>
+		<td> Admin </td>
+		<td> Go! </td>
+	</tr>
+</table>
+</div>
+<div id = "challenges">
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script>
+function fuqqit(id) {
+	$("#events").empty();
+
+	var s = '<table id = "challengeTable">'
+	s += '<tr>';
+	s += '<td> Challenge Name </td>';
+	s += '<td> Category </td>';
+	s += '<td> Value </td>';
+	s += '</tr>';
+	s += '</table>';
+	$("#events").append(s);
+
+	$.ajax({
+		url: "/api/common/challenges",
+		dataType: "json",
+		method: "POST",
+		data: {eventid: id}
+	}).done(function (data) {
+		data.forEach(function (entry) {
+			var s = '<tr><div id = "subbox" onclick = "javascript:chalbox('+entry.chalid+')"><td>'+entry.name+'</td></div>';
+			s+= '<td>'+entry.category+'</td>';
+			s+= '<td>'+entry.value+'</td></tr>';
+			$("#challengeTable").append(s);
+		});
+	});
+
+	$("#events").append("<div id = 'getEvents' onclick = 'javascript:getEvents()'>Back</div>");
+}
+
+function getEvents() {
+	$("#events").empty();
+	var s = '<table id = "eventTable">'
+	s += '<tr>';
+	s += '<td> Event Name </td>';
+	s += '<td> Start </td>';
+	s += '<td> End </td>';
+	s += '<td> Admin </td>';
+	s += '</tr>';
+	s += '</table>';
+	$("#events").append(s);
+
+	$.ajax({
+		url: "/api/common/events",
+		dataType: "json"
+	}).done(function (data) {
+		data.forEach(function (entry) {
+			var s = '<tr><td>'+entry.name+'</td>';
+			s+= '<td>'+entry.start+'</td>';
+			s+= '<td>'+entry.end+'</td>';
+			s+= '<td>'+entry.admin+'</td>';
+			s+= '<td><div class = "thisbutton" onclick="javascript:fuqqit('+entry.id+')"> Click me! </div></td></tr>';
+			$("#eventTable").append(s);
+		});
+	});
+}
+
+
+getEvents();
+
+</script>
+</html>

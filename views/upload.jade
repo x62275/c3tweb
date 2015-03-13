@@ -1,0 +1,17 @@
+extends layout
+
+block content
+    h1.
+        Upload
+    form#uploadForm(enctype="multipart/form-data", action="/api/upload", method="post")
+        input#userFileInput(type="file", name="userFile")
+    span#status
+    div#progress
+        span#percent 0%
+        div#bar
+    div
+        a(href="./download") Downloads
+    div
+        a(href="./logout") Logout
+    script(src="//code.jquery.com/jquery-1.11.0.min.js")
+    script(src="./js/upload.js")
