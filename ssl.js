@@ -52,7 +52,7 @@ function eventInsert(name, start, end, admin){
   //db.run(cmd+t0);
 }
 
-function challengeInsert(name, flag, value, eventid) { //simple flag
+function challengeInsert(name, flag, value, eventid) {
   var cmd = 'INSERT INTO challenges (name, baseflag, value, eventid) ';
   cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+eventid+'" ';
   cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
@@ -107,7 +107,6 @@ function getEvents(fn, user) {
 
 function getEventById(fn, id, user) {
   if (user.priv == 0) {
-    //Might be broken? check for `now` as a keyword
     db.get('SELECT id, name, start, end, admin FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
