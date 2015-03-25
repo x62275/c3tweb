@@ -1,7 +1,7 @@
 <html>
 <body>
 
-	<title>BitsForEveryone!</title>
+<title>BitsForEveryone!</title>
 
     <!-- Bootstrap core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -32,14 +32,23 @@
     </nav>
 
     <div class="container"><br><br><br>
-	    	<div id = "scorebox"> Score: <div id = "score"> </div></div>
+	    	<div id = "addevent"> Add Event
+			<form id = "eventform" style="">
+				<input name = "name" placeholder="event name"><br>
+				<input name = "start" placeholder="start time"><br>
+				<input name = "end" placeholder="end time"><br>
+				<input name = "admin" placeholder="administrator"><br>
+				<input type = "submit" value = "add">
+			</form>
+			</div>
+
 			<form id = "subform"></form>
 
 			<div id = "events">
 			<div class = "subbox">
 				
 			</div>
-			<table id = "eventTable" class = "table table-striped">
+			<table id = "eventTable"  class = "table table-striped">
 				<tr> 
 					<td> Event Name </td>
 					<td> Start </td>
@@ -50,21 +59,10 @@
 			</table>
 			</div>
     </div>
+
 </body>
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script>
-
-function getScore() {
-	var id = $(".subbox").text();
-	$.ajax({
-		url: "/api/getscores",
-		dataType: "json",
-		data: {eventid: id},
-		method: "POST",
-	}).done(function (data) {
-		$("#score").html(''+data['userscore']);
-	});
-}
 
 $("form#subform").submit(function(e) {
 	$.ajax({
@@ -76,10 +74,25 @@ $("form#subform").submit(function(e) {
 			if (data) { 
 				$("form#subform").append(' Correct!').fadeOut(1500);
 				setTimeout(getChallenges( $(".subbox").text() ), 2000);
-				getScore();
 			}
 			else {
 				$("form#subform").append(' Nope...').fadeOut(1500);
+			}
+		}
+	});
+	e.preventDefault();
+});
+
+$("form#eventform").submit(function(e) {
+	$.ajax({
+		type: "POST",
+		url: "/api/super/addevent",
+		data: $("form#eventform").serialize(),
+		dataType: "text",
+		success: function(data) {
+			if (data=="good") { 
+				$("#addevent").append(" Added!");
+				getEvents();
 			}
 		}
 	});
@@ -95,7 +108,7 @@ function generateChalbox(id,name) {
 
 function getChallenges(id) {
 	$("#events").empty();
-	var s = '<div class = "subbox" style="display:none">'+id+'</div>';
+	var s = '<div class = "subbox">'+id+'</div>';
 	s += '<table id = "challengeTable"  class = "table table-striped">'
 	s += '<tr>';
 	s += '<td>Challenge Name</td>';
@@ -104,7 +117,6 @@ function getChallenges(id) {
 	s += '</tr>';
 	s += '</table>';
 	$("#events").append(s);
-	getScore();
 
 	$.ajax({
 		url: "/api/admin/challenges",
@@ -126,7 +138,7 @@ function getChallenges(id) {
 function getEvents() {
 	$("#events").empty();
 	$("form#subform").empty();
-	var s = '<table id = "eventTable"  class = "table table-striped">'
+	var s = '<table id = "eventTable"   class = "table table-striped">'
 	s += '<tr>';
 	s += '<td>Event Name</td>';
 	s += '<td>Start</td>';
@@ -153,7 +165,6 @@ function getEvents() {
 }
 
 getEvents();
-getScore();
 
 </script>
 </html>

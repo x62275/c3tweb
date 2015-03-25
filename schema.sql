@@ -2,7 +2,8 @@ CREATE TABLE "users" (
     "username" TEXT PRIMARY KEY UNIQUE,
     "password" TEXT, -- sha256 hash of the plain-text password
     "salt" TEXT, -- salt that is appended to the password before it is hashed
-    "priv" INT 
+    "score" INT DEFAULT 0,
+    "priv" INT DEFAULT 0
 );
 
 CREATE TABLE "events" (
