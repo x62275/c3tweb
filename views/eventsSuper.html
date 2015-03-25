@@ -119,7 +119,7 @@ function getChallenges(id) {
 	$("#events").append(s);
 
 	$.ajax({
-		url: "/api/admin/challenges",
+		url: "/api/challenges",
 		dataType: "json",
 		method: "POST",
 		data: {eventid: id}
@@ -150,7 +150,7 @@ function getEvents() {
 	$("#events").append(s);
 
 	$.ajax({
-		url: "/api/admin/events",
+		url: "/api/events",
 		dataType: "json"
 	}).done(function (data) {
 		data.forEach(function (entry) {

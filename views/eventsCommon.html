@@ -40,13 +40,6 @@
 				
 			</div>
 			<table id = "eventTable" class = "table table-striped">
-				<tr> 
-					<td> Event Name </td>
-					<td> Start </td>
-					<td> End </td>
-					<td> Admin </td>
-					<td> Go! </td>
-				</tr>
 			</table>
 			</div>
     </div>
@@ -107,7 +100,7 @@ function getChallenges(id) {
 	getScore();
 
 	$.ajax({
-		url: "/api/common/challenges",
+		url: "/api/challenges",
 		dataType: "json",
 		method: "POST",
 		data: {eventid: id}
@@ -138,7 +131,7 @@ function getEvents() {
 	$("#events").append(s);
 
 	$.ajax({
-		url: "/api/common/events",
+		url: "/api/events",
 		dataType: "json"
 	}).done(function (data) {
 		data.forEach(function (entry) {
