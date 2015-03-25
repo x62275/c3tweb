@@ -130,6 +130,7 @@ function getChallenges(fn, eventID, user) {
 }
 
 function checkChallenge(fn, chalid, user, sub) {
+  //TAKE OUT SQL QUERIES INTO NEW FUNCTION -- separate logic vs DB usage
   if (user.priv >= 0) {
     //sanitize
     db.get('SELECT baseflag,secureflag FROM "challenges" WHERE id = ?', chalid, function(err, row) {
