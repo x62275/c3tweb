@@ -1,56 +1,110 @@
 <html>
 <body>
-<form id = "subform"></form>
 
-<div id = "events">
-<div class = "subbox">
-	
-</div>
-<table id = "eventTable">
-	<tr> 
-		<td> Event Name </td>
-		<td> Start </td>
-		<td> End </td>
-		<td> Admin </td>
-		<td> Go! </td>
-	</tr>
-</table>
-</div>
+	<title>BitsForEveryone!</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">BitsForEveryone</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/events">Play!</a></li>
+            <li><a href = "/logout">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container"><br><br><br>
+	    	<div id = "scorebox"> Score: <div id = "score"> </div></div>
+			<form id = "subform"></form>
+
+			<div id = "events">
+			<div class = "subbox">
+				
+			</div>
+			<table id = "eventTable" class = "table table-striped">
+				<tr> 
+					<td> Event Name </td>
+					<td> Start </td>
+					<td> End </td>
+					<td> Admin </td>
+					<td> Go! </td>
+				</tr>
+			</table>
+			</div>
+    </div>
 </body>
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script>
 
+function getScore() {
+	var id = $(".subbox").text();
+	$.ajax({
+		url: "/api/getscores",
+		dataType: "json",
+		data: {eventid: id},
+		method: "POST",
+	}).done(function (data) {
+		$("#score").html(''+data['userscore']);
+	});
+}
+
 $("form#subform").submit(function(e) {
-	alert('subing');
 	$.ajax({
 		type: "POST",
 		url: "/api/submit",
 		data: $("form#subform").serialize(),
 		dataType: "JSON",
 		success: function(data) {
-			alert(data.chalid);
-			getEvents();
+			if (data) { 
+				$("form#subform").append(' Correct!').fadeOut(1500);
+				setTimeout(getChallenges( $(".subbox").text() ), 2000);
+				getScore();
+			}
+			else {
+				$("form#subform").append(' Nope...').fadeOut(1500);
+			}
 		}
 	});
 	e.preventDefault();
 });
 
 function generateChalbox(id,name) {
+	$('form#subform').empty();
 	var s = name+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form>";
-	$('form#subform').html(s);
+	$('form#subform').append(s);
+	$('form#subform').show();
 }
 
 function getChallenges(id) {
 	$("#events").empty();
-	var s = '<div class = "subbox"></div>';
-	s += '<table id = "challengeTable">'
+	var s = '<div class = "subbox" style="display:none">'+id+'</div>';
+	s += '<table id = "challengeTable"  class = "table table-striped">'
 	s += '<tr>';
-	s += '<td> Challenge Name </td>';
-	s += '<td> Category </td>';
-	s += '<td> Value </td>';
+	s += '<td>Challenge Name</td>';
+	s += '<td>Category</td>';
+	s += '<td>Value</td>';
 	s += '</tr>';
 	s += '</table>';
 	$("#events").append(s);
+	getScore();
 
 	$.ajax({
 		url: "/api/admin/challenges",
@@ -72,12 +126,13 @@ function getChallenges(id) {
 function getEvents() {
 	$("#events").empty();
 	$("form#subform").empty();
-	var s = '<table id = "eventTable">'
+	var s = '<table id = "eventTable"  class = "table table-striped">'
 	s += '<tr>';
-	s += '<td> Event Name </td>';
-	s += '<td> Start </td>';
-	s += '<td> End </td>';
-	s += '<td> Admin </td>';
+	s += '<td>Event Name</td>';
+	s += '<td>Start</td>';
+	s += '<td>End</td>';
+	s += '<td>Admin</td>';
+	s += '<td>Go!</td>';
 	s += '</tr>';
 	s += '</table>';
 	$("#events").append(s);
@@ -98,6 +153,7 @@ function getEvents() {
 }
 
 getEvents();
+getScore();
 
 </script>
 </html>

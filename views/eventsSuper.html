@@ -1,0 +1,170 @@
+<html>
+<body>
+
+<title>BitsForEveryone!</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">BitsForEveryone</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/events">Play!</a></li>
+            <li><a href = "/logout">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container"><br><br><br>
+	    	<div id = "addevent"> Add Event
+			<form id = "eventform" style="">
+				<input name = "name" placeholder="event name"><br>
+				<input name = "start" placeholder="start time"><br>
+				<input name = "end" placeholder="end time"><br>
+				<input name = "admin" placeholder="administrator"><br>
+				<input type = "submit" value = "add">
+			</form>
+			</div>
+
+			<form id = "subform"></form>
+
+			<div id = "events">
+			<div class = "subbox">
+				
+			</div>
+			<table id = "eventTable"  class = "table table-striped">
+				<tr> 
+					<td> Event Name </td>
+					<td> Start </td>
+					<td> End </td>
+					<td> Admin </td>
+					<td> Go! </td>
+				</tr>
+			</table>
+			</div>
+    </div>
+
+</body>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script>
+
+$("form#subform").submit(function(e) {
+	$.ajax({
+		type: "POST",
+		url: "/api/submit",
+		data: $("form#subform").serialize(),
+		dataType: "JSON",
+		success: function(data) {
+			if (data) { 
+				$("form#subform").append(' Correct!').fadeOut(1500);
+				setTimeout(getChallenges( $(".subbox").text() ), 2000);
+			}
+			else {
+				$("form#subform").append(' Nope...').fadeOut(1500);
+			}
+		}
+	});
+	e.preventDefault();
+});
+
+$("form#eventform").submit(function(e) {
+	$.ajax({
+		type: "POST",
+		url: "/api/super/addevent",
+		data: $("form#eventform").serialize(),
+		dataType: "text",
+		success: function(data) {
+			if (data=="good") { 
+				$("#addevent").append(" Added!");
+				getEvents();
+			}
+		}
+	});
+	e.preventDefault();
+});
+
+function generateChalbox(id,name) {
+	$('form#subform').empty();
+	var s = name+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form>";
+	$('form#subform').append(s);
+	$('form#subform').show();
+}
+
+function getChallenges(id) {
+	$("#events").empty();
+	var s = '<div class = "subbox">'+id+'</div>';
+	s += '<table id = "challengeTable"  class = "table table-striped">'
+	s += '<tr>';
+	s += '<td>Challenge Name</td>';
+	s += '<td>Category</td>';
+	s += '<td>Value</td>';
+	s += '</tr>';
+	s += '</table>';
+	$("#events").append(s);
+
+	$.ajax({
+		url: "/api/admin/challenges",
+		dataType: "json",
+		method: "POST",
+		data: {eventid: id}
+	}).done(function (data) {
+		data.forEach(function (entry) {
+			var s = '<tr><td><div id = "subtoggle" onclick = \'javascript:generateChalbox('+entry.id+', "'+entry.name+'")\'>'+entry.name+'</div></td>';
+			s+= '<td>'+entry.category+'</td>';
+			s+= '<td>'+entry.value+'</td></tr>';
+			$("#challengeTable").append(s);
+		});
+	});
+
+	$("#events").append("<div id = 'getEvents' onclick = 'javascript:getEvents()'>Back</div>");
+}
+
+function getEvents() {
+	$("#events").empty();
+	$("form#subform").empty();
+	var s = '<table id = "eventTable"   class = "table table-striped">'
+	s += '<tr>';
+	s += '<td>Event Name</td>';
+	s += '<td>Start</td>';
+	s += '<td>End</td>';
+	s += '<td>Admin</td>';
+	s += '<td>Go!</td>';
+	s += '</tr>';
+	s += '</table>';
+	$("#events").append(s);
+
+	$.ajax({
+		url: "/api/admin/events",
+		dataType: "json"
+	}).done(function (data) {
+		data.forEach(function (entry) {
+			var s = '<tr><td>'+entry.name+'</td>';
+			s+= '<td>'+entry.start+'</td>';
+			s+= '<td>'+entry.end+'</td>';
+			s+= '<td>'+entry.admin+'</td>';
+			s+= '<td><div class = "thisbutton" onclick="javascript:getChallenges('+entry.id+')"> Click me! </div></td></tr>';
+			$("#eventTable").append(s);
+		});
+	});
+}
+
+getEvents();
+
+</script>
+</html>
