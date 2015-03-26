@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var hash = require('./pass').hash;
+var hash = require('./routes/pass').hash;
 var multer = require('multer');
 var serveIndex = require('serve-index');
 var serveStatic = require('serve-static');
@@ -29,10 +29,10 @@ app.use(session({
   secret: 'shhhh, very secret'
 }));
 
-var api = require('./api');
-var pages = require('./pages');
-var dbprocedures = require('./dbprocedures');
-var sessionhandler = require('./sessionhandler');
+var api = require('./routes/api');
+var pages = require('./routes/pages');
+var dbprocedures = require('./routes/dbprocedures');
+var sessionhandler = require('./routes/sessionhandler');
 
 dbprocedures.debugData();
 
