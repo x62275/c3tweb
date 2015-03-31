@@ -2,9 +2,12 @@ var path = require('path');
 var dbprocedures = require('./dbprocedures');
 
 exports.register = function(req, res) {
-    if (req.session.user) { res.redirect("/events"); }
-    //console.log('GET:  %s   /', req.connection.remoteAddress);
-    res.sendFile(path.join(__dirname, 'views', 'register.html'));
+	if (req.body.username && req.body.password && req.body.passwordagain) {
+		if (req.body.password == req.body.passwordagain) {
+			dbprocedures.userInsert(req.body.username, req.body.password, '0');
+		} else { res.redirect('/register'); return; }
+	}
+	res.redirect('/login');
 }
 
 exports.createEvent = function(req,res) {
