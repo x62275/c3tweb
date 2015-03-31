@@ -32,7 +32,7 @@
     </nav>
 
     <div class="container"><br><br><br>
-	    	<div id = "scorebox"> Score: <div id = "score"> </div></div>
+	    	<div id = "scorebox"></div>
 			<form id = "subform"></form>
 
 			<div id = "events">
@@ -79,15 +79,17 @@ $("form#subform").submit(function(e) {
 	e.preventDefault();
 });
 
-function generateChalbox(id,name) {
+function generateChalbox(id,n,d) {
 	$('form#subform').empty();
-	var s = name+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form>";
+	var s = n+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form><br>";
 	$('form#subform').append(s);
+	$("form#subform").append(d);
 	$('form#subform').show();
 }
 
 function getChallenges(id) {
 	$("#events").empty();
+	$("#scorebox").html('Score: <div id = "score"> </div>');
 	var s = '<div class = "subbox" style="display:none">'+id+'</div>';
 	s += '<table id = "challengeTable"  class = "table table-striped">'
 	s += '<tr>';
@@ -106,7 +108,7 @@ function getChallenges(id) {
 		data: {eventid: id}
 	}).done(function (data) {
 		data.forEach(function (entry) {
-			var s = '<tr><td><div id = "subtoggle" onclick = \'javascript:generateChalbox('+entry.id+', "'+entry.name+'")\'>'+entry.name+'</div></td>';
+			var s = '<tr><td><div id = "subtoggle" onclick = \'javascript:generateChalbox('+entry.id+', "'+entry.name+'", "'+entry.description+'")\'>'+entry.name+'</div></td>';
 			s+= '<td>'+entry.category+'</td>';
 			s+= '<td>'+entry.value+'</td></tr>';
 			$("#challengeTable").append(s);
@@ -119,6 +121,7 @@ function getChallenges(id) {
 function getEvents() {
 	$("#events").empty();
 	$("form#subform").empty();
+	$("#scorebox").empty();
 	var s = '<table id = "eventTable"  class = "table table-striped">'
 	s += '<tr>';
 	s += '<td>Event Name</td>';
@@ -146,7 +149,6 @@ function getEvents() {
 }
 
 getEvents();
-getScore();
 
 </script>
 </html>
