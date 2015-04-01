@@ -46,12 +46,20 @@ app.get('/register', pages.register);
 
 app.get('/events', sessionhandler.restrictCommon, pages.events);
 
+app.get('/admin', sessionhandler.restrictAdmin, pages.admin);
+
 //API
 app.post('/register', api.register);
 
 app.post('/events', sessionhandler.restrictSuper, api.createEvent);
 
 app.get('/api/events/', sessionhandler.restrictCommon, api.getEvents);
+
+app.post('/api/events/admins', sessionhandler.restrictCommon, api.getAdminsByEvent);
+
+app.post('/api/admin/addchallenge', sessionhandler.restrictAdmin, api.addChallenge);
+
+app.post('/api/admin/events', sessionhandler.restrictAdmin, api.getEventsByAdmin)
 
 app.post('/api/super/addevent', sessionhandler.restrictSuper, api.addEvent);
 

@@ -23,6 +23,18 @@ exports.getEvents = function(req,res) {
   }, req.session.user);
 }
 
+exports.getAdminsByEvent = function(req,res) {
+  dbprocedures.getAdminsByEvent(function(err,row) {
+    res.send(row);
+  }, req.body.eventid);
+}
+
+exports.getEventsByAdmin = function(req,res) {
+  dbprocedures.getEventsByAdmin(function(err,row) {
+    res.send(row);
+  }, req.session.user.username);
+}
+
 exports.addEvent = function(req,res) {
   if (req.body.name && req.body.start && req.body.end) {
     if ( dbprocedures.getUser(req.body.admin, function(err, row) {return row;}) != 0) {
@@ -31,6 +43,19 @@ exports.addEvent = function(req,res) {
     }
   } else {
     res.send('nope');
+  }
+}
+
+exports.addChallenge = function(req,res) {
+  if (req.body.name && req.body.value && req.body.flag && req.body.eventid && req.body.description) {
+    dbprocedures.getAdminsByEvent(function(err,row) {
+      row.forEach( function (entry) {
+        if (entry.username == req.session.user.username) {
+          dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.description, req.body.eventid);
+          res.send(entry);
+        }
+      });
+    }, req.body.eventid);
   }
 }
 

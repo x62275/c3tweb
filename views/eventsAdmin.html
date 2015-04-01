@@ -25,6 +25,7 @@
           <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
             <li class="active"><a href="/events">Play!</a></li>
+            <li><a href="/admin">Admin</a></li>
             <li><a href = "/logout">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -79,6 +80,21 @@ $("form#subform").submit(function(e) {
 	e.preventDefault();
 });
 
+function getAdminsByEvent(id) {
+	$.ajax({
+		url: "/api/events/admins",
+		dataType: "json",
+		method: "POST",
+		data: {eventid: id}
+	}).done(function (data) {
+		$("#admins").append('Admins: ');
+		data.forEach(function (entry) {
+			$("#admins").append(entry.username+' ');
+		});
+			$("#admins").append('<br><br>');
+	});
+}
+
 function generateChalbox(id,n,d) {
 	$('form#subform').empty();
 	var s = n+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form><br>";
@@ -98,9 +114,9 @@ function getChallenges(id) {
 	s += '<td>Value</td>';
 	s += '</tr>';
 	s += '</table>';
+	s += '<div id = "admins"></div>';
 	$("#events").append(s);
 	getScore();
-
 	$.ajax({
 		url: "/api/challenges",
 		dataType: "json",
@@ -115,6 +131,8 @@ function getChallenges(id) {
 		});
 	});
 
+	getAdminsByEvent(id);
+
 	$("#events").append("<div id = 'getEvents' onclick = 'javascript:getEvents()'>Back</div>");
 }
 
@@ -127,7 +145,6 @@ function getEvents() {
 	s += '<td>Event Name</td>';
 	s += '<td>Start</td>';
 	s += '<td>End</td>';
-	s += '<td>Admin</td>';
 	s += '<td>Go!</td>';
 	s += '</tr>';
 	s += '</table>';
@@ -141,7 +158,6 @@ function getEvents() {
 			var s = '<tr><td>'+entry.name+'</td>';
 			s+= '<td>'+entry.start+'</td>';
 			s+= '<td>'+entry.end+'</td>';
-			s+= '<td>'+entry.admin+'</td>';
 			s+= '<td><div class = "thisbutton" onclick="javascript:getChallenges('+entry.id+')"> Click me! </div></td></tr>';
 			$("#eventTable").append(s);
 		});

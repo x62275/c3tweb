@@ -1,0 +1,81 @@
+<html>
+<body>
+
+	<title>BitsForEveryone!</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">BitsForEveryone</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/events">Play!</a></li>
+            <li class="active"><a href="/admin">Admin</a></li>
+            <li><a href = "/logout">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container"><br><br><br>
+    	<div id = "adminform">
+    		<form id = "addchallenge"></form>
+    	</div>
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script>
+
+	function generateForm() {
+		$.ajax({
+			url: "/api/admin/events",
+			dataType: "json",
+			method: "POST"
+		}).done(function (data) {
+			var s = "<input type = 'text' name = 'name' placeholder='name'><br>";
+			s += "<textarea name = 'description' placeholder='description'></textarea><br>";
+			s += "<input type = 'value' name = 'value' placeholder='value'><br>";
+			s += "<input type = 'flag' name = 'flag' placeholder='flag'><br>";
+			s += "<select name = 'eventid'>";
+			data.forEach(function (entry) {
+				s+='<option value = '+entry.eventid+'>'+entry.eventid+'</option>';
+			});
+			s += "</select><br><input type = 'submit' value='Add'>";
+			$("#addchallenge").append(s);
+		});
+	}
+
+	generateForm();
+
+	$("#addchallenge").submit(function(e) {
+		$.ajax({
+			type: "POST",
+			url: "/api/admin/addchallenge",
+			data: $("#addchallenge").serialize(),
+			dataType: "JSON",
+			success: function(data) {
+				$("#adminform").empty();
+				$("#adminform").html('Added challenge!');
+				generateForm();
+			}
+		});
+		e.preventDefault();
+	});
+
+</script>
+</html>

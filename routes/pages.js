@@ -29,3 +29,11 @@ exports.home = function(req, res) {
     res.sendFile(path.join(__dirname, '../views', 'index.html'));
   }
 }
+
+exports.admin = function(req, res) {
+  if (req.session.user) { 
+    res.sendFile(path.join(__dirname, '../views', 'admin.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '../views', 'index.html'));
+  }
+}

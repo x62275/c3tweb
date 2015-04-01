@@ -43,18 +43,18 @@ exports.userInsert = function(user, pass, priv){
   });
 }
 
-exports.eventInsert = function(name, start, end, admin){
+exports.eventInsert = function(name, start, end){
   //TODO: Sanitization
-  var cmd = 'INSERT INTO "events" ("name", "start", "end", "admin") '
-  var t0 = 'SELECT "'+name+'", "'+start+'", "'+end+'", "'+admin+'"'; 
+  var cmd = 'INSERT INTO "events" ("name", "start", "end") '
+  var t0 = 'SELECT "'+name+'", "'+start+'", "'+end+'"'; 
   var t1 = 'WHERE NOT EXISTS(SELECT 1 FROM "events" WHERE name= "'+name+'");'; // DEBUG
   db.run(cmd+t0+t1); //DEBUG
   //db.run(cmd+t0);
 }
 
-exports.challengeInsert = function(name, flag, value, eventid) {
-  var cmd = 'INSERT INTO challenges (name, baseflag, value, eventid) ';
-  cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+eventid+'" ';
+exports.challengeInsert = function(name, flag, value, description, eventid) {
+  var cmd = 'INSERT INTO challenges (name, baseflag, value, description, eventid) ';
+  cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+description+'", "'+eventid+'" ';
   cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
   db.run(cmd);
 }
@@ -65,9 +65,9 @@ exports.debugData = function(){
   exports.userInsert('admin2', 'admin',1)
   exports.userInsert('supervisor','supervisor',2)
 
-  exports.eventInsert("ctf1", "now", "now", "admin");
-  exports.eventInsert("ctf2", "now", "now", "admin");
-  exports.eventInsert("oldctf", "01-15-1994 15:00", "now", "admin2");
+  exports.eventInsert("ctf1", "now", "now");
+  exports.eventInsert("ctf2", "now", "now");
+  exports.eventInsert("oldctf", "01-15-1994 15:00", "now");
 
   exports.challengeInsert("sooperhard1", "lol123", "500", "1");
   exports.challengeInsert("sooperhard1again", "lol123", "500", "1");
@@ -86,7 +86,7 @@ exports.getUser = function(username, fn) {
 }
 
 exports.getEvent = function(name, fn) {
-  db.get('SELECT name, start, end, admin FROM events WHERE name = ?', name, function(err, row) {
+  db.get('SELECT name, start, end FROM events WHERE name = ?', name, function(err, row) {
     if (!row) return fn(err);
     return fn(null, row);
   });
@@ -95,12 +95,12 @@ exports.getEvent = function(name, fn) {
 exports.getEvents = function(fn, user) {
   if (user.priv == 0) {
     //Might be broken? check for `now` as a keyword
-    db.all('SELECT id, name, start, end, admin FROM events WHERE start < \'now\'', function(err, row) {
+    db.all('SELECT id, name, start, end FROM events WHERE start < \'now\'', function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
     });
   } else {
-    db.all('SELECT id, name, start, end, admin FROM events', function(err, row) {
+    db.all('SELECT id, name, start, end FROM events', function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
     });
@@ -109,16 +109,28 @@ exports.getEvents = function(fn, user) {
 
 exports.getEventById = function(fn, id, user) {
   if (user.priv == 0) {
-    db.get('SELECT id, name, start, end, admin FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
+    db.get('SELECT id, name, start, end FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
     });
   } else {
-    db.get('SELECT id, name, start, end, admin FROM events WHERE id = ?', id, function(err, row) {
+    db.get('SELECT id, name, start, end FROM events WHERE id = ?', id, function(err, row) {
       if (!row) return fn(err);
       return fn(null, row);
     });
   }
+}
+
+exports.getAdminsByEvent = function (fn, eventID) {
+  db.all('SELECT username FROM admins WHERE eventid = ?', eventID, function(err,row) {
+    return fn(null, row);
+  });
+}
+
+exports.getEventsByAdmin = function(fn, username) {
+  db.all('SELECT eventid FROM admins WHERE username = ?', username, function(err,row) {
+    return fn(null, row);
+  });
 }
 
 exports. getChallenges = function(fn, eventID, user) {
