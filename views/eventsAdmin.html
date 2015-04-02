@@ -34,15 +34,13 @@
 
     <div class="container"><br><br><br>
 	    	<div id = "scorebox"></div>
-			<form id = "subform"></form>
 
 			<div id = "events">
-			<div class = "subbox">
-				
+                <div class = "subbox"></div>
+                <table id = "eventTable" class = "table table-striped"></table>
 			</div>
-			<table id = "eventTable" class = "table table-striped">
-			</table>
-			</div>
+            <form id = "subform"></form>
+            <div id = "back"></div>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -133,7 +131,7 @@ function getChallenges(id) {
 
 	getAdminsByEvent(id);
 
-	$("#events").append("<div id = 'getEvents' onclick = 'javascript:getEvents()'>Back</div>");
+	$("#back").append("<div id = 'getEvents' onclick = 'javascript:getEvents()'>Back</div>");
 }
 
 function getEvents() {
