@@ -46,6 +46,12 @@ exports.addEvent = function(req,res) {
   }
 }
 
+exports.grantAdmin = function(req, res) {
+  if (req.body.username && req.body.eventid) {
+    dbprocedures.grantAdmin(req.body.username,req.body.eventid);
+  }
+}
+
 exports.addChallenge = function(req,res) {
   if (req.body.name && req.body.value && req.body.flag && req.body.eventid && req.body.description) {
     dbprocedures.getAdminsByEvent(function(err,row) {

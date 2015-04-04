@@ -133,6 +133,10 @@ exports.getEventsByAdmin = function(fn, username) {
   });
 }
 
+exports.grantAdmin = function(username, eventid) {
+  db.run('INSERT INTO admins (username,eventid) VALUES (?,?) WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = ? and eventid = ?)', username, eventid, username, eventid);
+}
+
 exports. getChallenges = function(fn, eventID, user) {
   if (user.priv >= 0) {
     //Make * more specific

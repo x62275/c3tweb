@@ -37,3 +37,11 @@ exports.admin = function(req, res) {
     res.sendFile(path.join(__dirname, '../views', 'index.html'));
   }
 }
+
+exports.super = function(req, res) {
+  if (req.session.user) { 
+    res.sendFile(path.join(__dirname, '../views', 'super.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '../views', 'index.html'));
+  }
+}

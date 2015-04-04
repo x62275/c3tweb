@@ -9,10 +9,8 @@ CREATE TABLE "users" (
 CREATE TABLE "events" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "name" TEXT UNIQUE,
-    "admin" TEXT,
     "start" DATE,
-    "end" DATE,
-    FOREIGN KEY (admin) REFERENCES users(username)
+    "end" DATE
 );
 
 CREATE TABLE "challenges" (
@@ -35,4 +33,12 @@ CREATE TABLE "solves" (
     "time" DATE,
 	FOREIGN KEY (username) REFERENCES users(username),
 	FOREIGN KEY (chalid) REFERENCES challenges(id)
+);
+
+CREATE TABLE "admins" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "username" TEXT,
+    "eventid" INTEGER,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (eventid) REFERENCES events(id)
 );
