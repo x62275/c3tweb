@@ -36,6 +36,8 @@
     	<div id = "adminform">
     		<form id = "addchallenge"></form>
     	</div>
+    	<div id = "errorbox">
+    	</div>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -67,11 +69,17 @@
 			type: "POST",
 			url: "/api/admin/addchallenge",
 			data: $("#addchallenge").serialize(),
-			dataType: "JSON",
+			dataType: "text",
 			success: function(data) {
-				$("#adminform").empty();
-				$("#adminform").html('Added challenge!');
-				generateForm();
+				if (data == 'error') {
+					$("#errorbox").empty();
+					$("#errorbox").html('Invalid request...');
+				} else {
+					$("#errorbox").empty();
+					$("#errorbox").html('Added challenge!');
+					$("#addchallenge").empty();
+					generateForm();
+				}
 			}
 		});
 		e.preventDefault();

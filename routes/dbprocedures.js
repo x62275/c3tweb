@@ -52,7 +52,10 @@ exports.eventInsert = function(name, start, end){
   //db.run(cmd+t0);
 }
 
-exports.challengeInsert = function(name, flag, value, description, eventid) {
+exports.challengeInsert = function(name, flag, value, eventid, description) {
+  //TODO: Type checking for challenges
+  //      Check to see if challenge with same name already exists
+  // 
   var cmd = 'INSERT INTO challenges (name, baseflag, value, description, eventid) ';
   cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+description+'", "'+eventid+'" ';
   cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
@@ -69,7 +72,7 @@ exports.debugData = function(){
   exports.eventInsert("ctf2", "now", "now");
   exports.eventInsert("oldctf", "01-15-1994 15:00", "now");
 
-  exports.challengeInsert("sooperhard1", "lol123", "500", "1");
+  exports.challengeInsert("sooperhard1", "lol123", "500", "1", "i am description");
   exports.challengeInsert("sooperhard1again", "lol123", "500", "1");
   exports.challengeInsert("sooperhard2", "lol123", "500", "2");
   exports.challengeInsert("sooperhard2again", "lol123", "500", "2");
@@ -111,11 +114,13 @@ exports.getEventById = function(fn, id, user) {
   if (user.priv == 0) {
     db.get('SELECT id, name, start, end FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
       if (!row) return fn(err);
+      console.log(row);
       return fn(null, row);
     });
   } else {
     db.get('SELECT id, name, start, end FROM events WHERE id = ?', id, function(err, row) {
       if (!row) return fn(err);
+      console.log(row);
       return fn(null, row);
     });
   }
@@ -137,12 +142,24 @@ exports.grantAdmin = function(username, eventid) {
   db.run('INSERT INTO admins (username,eventid) VALUES (?,?) WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = ? and eventid = ?)', username, eventid, username, eventid);
 }
 
-exports. getChallenges = function(fn, eventID, user) {
+exports.getChallenges = function(fn, eventID, user) {
   if (user.priv >= 0) {
     //Make * more specific
-    db.all('SELECT * FROM challenges WHERE NOT EXISTS (SELECT 1 FROM SOLVES WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
+    console.log(user.username+" requests challenges from event #"+eventID);
+    db.all('SELECT * FROM challenges WHERE NOT EXISTS (SELECT 1 FROM solves WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
       if (!row) return fn(err);
+      console.log(row);
       return fn(null, row);
     });
   } 
+}
+
+exports.getChallengeByName = function(fn, eventID, name) {
+  db.get('SELECT 1 FROM challenges WHERE eventid = ? and name = ?', eventID, name, function(err,row) {
+    if (row) {
+      fn(true);
+    } else {
+      fn(false);
+    }
+  });
 }

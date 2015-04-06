@@ -87,4 +87,4 @@ app.get('*', function(req, res) { // all other requests
 });
 
 // Create an HTTPS service identical to the HTTP service.
-https.createServer(options, app).listen(3003);
+https.createServer(options, app).listen(443);

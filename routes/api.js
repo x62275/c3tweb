@@ -52,18 +52,26 @@ exports.grantAdmin = function(req, res) {
   }
 }
 
+
+//MAKES THE SERVER SPLODE
 exports.addChallenge = function(req,res) {
   if (req.body.name && req.body.value && req.body.flag && req.body.eventid && req.body.description) {
-    dbprocedures.getAdminsByEvent(function(err,row) {
-      row.forEach( function (entry) {
-        if (entry.username == req.session.user.username) {
-          dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.description, req.body.eventid);
-          res.send(entry);
-        }
-      });
-    }, req.body.eventid);
-  }
+    dbprocedures.getChallengeByName( function (exists) {
+      console.log('Exists is: '+exists+" !exists="+!exists);
+      if ( !exists ) {
+        dbprocedures.getAdminsByEvent(function(err,row) {
+          row.forEach( function (entry) {
+            if (entry.username == req.session.user.username) {
+              dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.eventid, req.body.description);
+              res.send('noerror');
+            } else { res.send('error'); }
+          });
+        }, req.body.eventid);
+      } else { res.send('error'); }
+    }, req.body.eventid, req.body.name);
+  } else { res.send('error'); }
 }
+
 
 exports.getChallenges = function(req, res) {
   dbprocedures.getEventById(function(err, row) {
