@@ -30,7 +30,7 @@ exports.getScores = function(req,res) {
     res.send({'userscore':0, 'data': []})
   }
  });
-}
+};
 
 exports.userInsert = function(user, pass, priv){
   //TODO: Sanitization
@@ -41,7 +41,7 @@ exports.userInsert = function(user, pass, priv){
     var t1 = 'WHERE NOT EXISTS(SELECT 1 FROM "users" WHERE username= "'+user+'");';
     db.run(cmd+t0+t1);
   });
-}
+};
 
 exports.eventInsert = function(name, start, end){
   //TODO: Sanitization
@@ -50,7 +50,7 @@ exports.eventInsert = function(name, start, end){
   var t1 = 'WHERE NOT EXISTS(SELECT 1 FROM "events" WHERE name= "'+name+'");'; // DEBUG
   db.run(cmd+t0+t1); //DEBUG
   //db.run(cmd+t0);
-}
+};
 
 exports.challengeInsert = function(name, flag, value, eventid, description) {
   //TODO: Type checking for challenges
@@ -60,7 +60,7 @@ exports.challengeInsert = function(name, flag, value, eventid, description) {
   cmd += 'SELECT "'+name+'", "'+flag+'", "'+value+'", "'+description+'", "'+eventid+'" ';
   cmd += 'WHERE NOT EXISTS(SELECT 1 FROM "challenges" WHERE name= "'+name+'");';
   db.run(cmd);
-}
+};
 
 exports.debugData = function(){
   exports.userInsert('guest','guest',0)
@@ -78,7 +78,7 @@ exports.debugData = function(){
   exports.challengeInsert("sooperhard2again", "lol123", "500", "2");
   exports.challengeInsert("sooperhard3", "lol123", "500", "3");
   exports.challengeInsert("sooperhard3again", "lol123", "500", "3");
-}
+};
 
 exports.getUser = function(username, fn) {
   db.get('SELECT username, password, salt, priv FROM users WHERE username = ?', username, function(err, row) {
@@ -93,7 +93,7 @@ exports.getEvent = function(name, fn) {
     if (!row) return fn(err);
     return fn(null, row);
   });
-}
+};
 
 exports.getEvents = function(fn, user) {
   if (user.priv == 0) {
@@ -108,51 +108,51 @@ exports.getEvents = function(fn, user) {
       return fn(null, row);
     });
   }
-}
+};
 
 exports.getEventById = function(fn, id, user) {
   if (user.priv == 0) {
     db.get('SELECT id, name, start, end FROM events WHERE start < \'now\' AND id = ?', id, function(err, row) {
       if (!row) return fn(err);
-      console.log(row);
+      //console.log(row);
       return fn(null, row);
     });
   } else {
     db.get('SELECT id, name, start, end FROM events WHERE id = ?', id, function(err, row) {
       if (!row) return fn(err);
-      console.log(row);
+      //console.log(row);
       return fn(null, row);
     });
   }
-}
+};
 
 exports.getAdminsByEvent = function (fn, eventID) {
   db.all('SELECT username FROM admins WHERE eventid = ?', eventID, function(err,row) {
     return fn(null, row);
   });
-}
+};
 
 exports.getEventsByAdmin = function(fn, username) {
   db.all('SELECT eventid FROM admins WHERE username = ?', username, function(err,row) {
     return fn(null, row);
   });
-}
+};
 
 exports.grantAdmin = function(username, eventid) {
   db.run('INSERT INTO admins (username,eventid) VALUES (?,?) WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = ? and eventid = ?)', username, eventid, username, eventid);
-}
+};
 
 exports.getChallenges = function(fn, eventID, user) {
   if (user.priv >= 0) {
     //Make * more specific
-    console.log(user.username+" requests challenges from event #"+eventID);
+    //console.log(user.username+" requests challenges from event #"+eventID);
     db.all('SELECT * FROM challenges WHERE NOT EXISTS (SELECT 1 FROM solves WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
       if (!row) return fn(err);
-      console.log(row);
+      //console.log(row);
       return fn(null, row);
     });
   } 
-}
+};
 
 exports.getChallengeByName = function(fn, eventID, name) {
   db.get('SELECT 1 FROM challenges WHERE eventid = ? and name = ?', eventID, name, function(err,row) {
@@ -162,4 +162,4 @@ exports.getChallengeByName = function(fn, eventID, name) {
       fn(false);
     }
   });
-}
+};

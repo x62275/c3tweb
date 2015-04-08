@@ -51,20 +51,19 @@ exports.grantAdmin = function(req) {
   }
 };
 
-
-//MAKES THE SERVER SPLODE
 exports.addChallenge = function(req,res) {
   if (req.body.name && req.body.value && req.body.flag && req.body.eventid && req.body.description) {
     dbprocedures.getChallengeByName( function (exists) {
-      console.log('Exists is: '+exists+" !exists="+!exists);
       if ( !exists ) {
         dbprocedures.getAdminsByEvent(function(err,row) {
+          var status = 'error'
           row.forEach( function (entry) {
             if (entry.username == req.session.user.username) {
               dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.eventid, req.body.description);
-              res.send('noerror');
-            } else { res.send('error'); } // this logic is wrong.. we do not want to send an error the first time our admin isn't in the rows
+              status = 'noerror';
+            }
           });
+          res.send(status);
         }, req.body.eventid);
       } else { res.send('error'); }
     }, req.body.eventid, req.body.name);
