@@ -4,6 +4,7 @@
 
 TODO:
 1 Superuser page can assign admins to event
+    (create superuser page)
 2 Add functionality that allows users to see the scores of other event participants
 2 Add scoreboard for every event
 3 Sanitize input
