@@ -4,13 +4,13 @@ exports.login = function(req, res) {
     if (req.session.user) { res.redirect("/events"); }
     //console.log('GET:  %s   /', req.connection.remoteAddress);
     res.sendFile(path.join(__dirname, '../views', 'login.html'));
-}
+};
 
 exports.register = function(req, res) {
     if (req.session.user) { res.redirect("/events"); }
     //console.log('GET:  %s   /', req.connection.remoteAddress);
     res.sendFile(path.join(__dirname, '../views', 'register.html'));
-}
+};
 
 exports.events = function(req,res) {
   if (req.session.user.priv == 2) {
@@ -20,7 +20,7 @@ exports.events = function(req,res) {
   } else {
     res.sendFile(path.join(__dirname, '../views', 'eventsCommon.html'));
   }
-}
+};
 
 exports.home = function(req, res) {
   if (req.session.user) { 
@@ -28,7 +28,7 @@ exports.home = function(req, res) {
   } else {
     res.sendFile(path.join(__dirname, '../views', 'index.html'));
   }
-}
+};
 
 exports.admin = function(req, res) {
   if (req.session.user) { 
@@ -36,7 +36,7 @@ exports.admin = function(req, res) {
   } else {
     res.sendFile(path.join(__dirname, '../views', 'index.html'));
   }
-}
+};
 
 exports.super = function(req, res) {
   if (req.session.user) { 
@@ -44,4 +44,4 @@ exports.super = function(req, res) {
   } else {
     res.sendFile(path.join(__dirname, '../views', 'index.html'));
   }
-}
+};

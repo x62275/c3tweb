@@ -23,9 +23,9 @@ function hashPassword(password, salt) {
  * Hashes a password with optional `salt`, otherwise
  * generate a salt for `pass` and invoke `fn(err, salt, hash)`.
  *
- * @param {String} password to hash
- * @param {String} optional salt
- * @param {Function} callback
+ * @param {String} pwd password to hash
+ * @param {String} salt optional salt
+ * @param {Function} fn callback
  * @api public
  */
 exports.hash = function (pwd, salt, fn) {

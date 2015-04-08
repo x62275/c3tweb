@@ -1,14 +1,12 @@
 <html>
-<body>
 
-	<title>BitsForEveryone!</title>
-
+<head><title>BitsForEveryone!</title>
     <!-- Bootstrap core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
   </head>
+<body>
 
-  <body>
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -39,7 +37,7 @@
     	<div id = "errorbox">
     	</div>
     </div>
-</body>
+
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script>
 
@@ -71,12 +69,13 @@
 			data: $("#addchallenge").serialize(),
 			dataType: "text",
 			success: function(data) {
+				var box = $("#errobox");
 				if (data == 'error') {
-					$("#errorbox").empty();
-					$("#errorbox").html('Invalid request...');
+					box.empty();
+					box.html('Invalid request...');
 				} else {
-					$("#errorbox").empty();
-					$("#errorbox").html('Added challenge!');
+					box.empty();
+					box.html('Added challenge!');
 					$("#addchallenge").empty();
 					generateForm();
 				}
@@ -85,5 +84,5 @@
 		e.preventDefault();
 	});
 
-</script>
+</script></body>
 </html>

@@ -9,14 +9,14 @@ exports.authenticate = function(name, pass, fn) {
     // apply the same algorithm to the POSTed password, applying
     // the hash against the pass / salt, if there is a match we
     // found the user
-    if(!user) return fn(null)
+    if(!user) return fn(null);
     hash(pass, user.salt, function(err, hash){
       if (err) return fn(err);
       if (hash == user.password) return fn(null, user);
       fn(new Error('invalid password'));
     });
   });
-}
+};
 
 exports.restrictCommon = function (req, res, next) {
   if (req.session.user) {
@@ -25,7 +25,7 @@ exports.restrictCommon = function (req, res, next) {
     req.session.error = 'Access denied!';
     res.redirect('/');
   }
-}
+};
 
 exports.restrictAdmin = function (req, res, next) {
   if (req.session.user && parseInt(req.session.user.priv) > 0 ) {
@@ -34,7 +34,7 @@ exports.restrictAdmin = function (req, res, next) {
     req.session.error = 'Access denied!';
     res.redirect('/');
   }
-}
+};
 
 exports.restrictSuper = function (req, res, next) {
   if (req.session.user && parseInt(req.session.user.priv) > 1 ) {
@@ -43,7 +43,7 @@ exports.restrictSuper = function (req, res, next) {
     req.session.error = 'Access denied!';
     res.redirect('/');
   }
-}
+};
 
 exports.processLogin = function(req, res) {
   //console.log('POST: %s   /', req.connection.remoteAddress);
@@ -64,11 +64,11 @@ exports.processLogin = function(req, res) {
       });
     } else {
       req.session.error = 'Authentication failed, please check your '
-        + ' username and password.'
+        + ' username and password.';
       res.redirect('/login');
     }
   });
-}
+};
 
 exports.processLogout = function(req, res){
   // destroy the user's session to log them out
@@ -76,4 +76,4 @@ exports.processLogout = function(req, res){
   req.session.destroy(function(){
     res.redirect('/');
   });
-}
+};

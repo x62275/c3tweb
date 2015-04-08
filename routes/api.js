@@ -56,7 +56,7 @@ exports.addChallenge = function(req,res) {
     dbprocedures.getChallengeByName( function (exists) {
       if ( !exists ) {
         dbprocedures.getAdminsByEvent(function(err,row) {
-          var status = 'error'
+          var status = 'error';
           row.forEach( function (entry) {
             if (entry.username == req.session.user.username) {
               dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.eventid, req.body.description);

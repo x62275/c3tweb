@@ -15,7 +15,7 @@ exports.getScores = function(req,res) {
   db.all("select r.username, s.value, r.time from solves as r join challenges as s on s.id = r.chalid where s.eventid = ? order by r.username, r.time asc", eid, function(err, rows) {
   if (rows[0] != null) {
     if (rows[0]['username']==username) userscore = rows[0]['value'];
-    for (i = 1; i < rows.length; i++) {
+    for (var i = 1; i < rows.length; i++) {
       if (rows[i]['username'] == rows[i-1]['username']) {
         rows[i]['value'] += rows[i-1]['value'];
       }
@@ -34,7 +34,7 @@ exports.getScores = function(req,res) {
 
 exports.userInsert = function(user, pass, priv){
   //TODO: Sanitization
-  var cmd = 'INSERT INTO "users" ("username", "password", "salt", "priv") '
+  var cmd = 'INSERT INTO "users" ("username", "password", "salt", "priv") ';
   hash(pass, function(err, salt, hash){
     if (err) throw err;
     var t0 = 'SELECT "'+user+'", "'+hash+'", "'+salt+'", '+priv+' '; 
@@ -45,7 +45,7 @@ exports.userInsert = function(user, pass, priv){
 
 exports.eventInsert = function(name, start, end){
   //TODO: Sanitization
-  var cmd = 'INSERT INTO "events" ("name", "start", "end") '
+  var cmd = 'INSERT INTO "events" ("name", "start", "end") ';
   var t0 = 'SELECT "'+name+'", "'+start+'", "'+end+'"'; 
   var t1 = 'WHERE NOT EXISTS(SELECT 1 FROM "events" WHERE name= "'+name+'");'; // DEBUG
   db.run(cmd+t0+t1); //DEBUG
@@ -63,10 +63,10 @@ exports.challengeInsert = function(name, flag, value, eventid, description) {
 };
 
 exports.debugData = function(){
-  exports.userInsert('guest','guest',0)
-  exports.userInsert('admin','admin',1)
-  exports.userInsert('admin2', 'admin',1)
-  exports.userInsert('supervisor','supervisor',2)
+  exports.userInsert('guest','guest',0);
+  exports.userInsert('admin','admin',1);
+  exports.userInsert('admin2', 'admin',1);
+  exports.userInsert('supervisor','supervisor',2);
 
   exports.eventInsert("ctf1", "now", "now");
   exports.eventInsert("ctf2", "now", "now");
@@ -86,7 +86,7 @@ exports.getUser = function(username, fn) {
     //console.log('Query returned with username: %s', row.username);
     return fn(null, row);
   });
-}
+};
 
 exports.getEvent = function(name, fn) {
   db.get('SELECT name, start, end FROM events WHERE name = ?', name, function(err, row) {

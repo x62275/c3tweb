@@ -84,4 +84,4 @@ app.get('*', function(req, res) { // all other requests
 
 // Create an HTTPS service identical to the HTTP service.
 https.createServer(options, app).listen(443);
-console.log('HTTPS server running on port 443.')
+console.log('HTTPS server running on port 443.');
