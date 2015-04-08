@@ -4,10 +4,6 @@ var fs = require('fs');
 var path = require('path');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var hash = require('./routes/pass').hash;
-var multer = require('multer');
-var serveIndex = require('serve-index');
-var serveStatic = require('serve-static');
 var logger = require('morgan');
 
 // This line is from the Node.js HTTPS documentation.
@@ -61,7 +57,7 @@ app.post('/api/events/admins', sessionhandler.restrictCommon, api.getAdminsByEve
 
 app.post('/api/admin/addchallenge', sessionhandler.restrictAdmin, api.addChallenge);
 
-app.post('/api/admin/events', sessionhandler.restrictAdmin, api.getEventsByAdmin)
+app.post('/api/admin/events', sessionhandler.restrictAdmin, api.getEventsByAdmin);
 
 app.post('/api/super/addevent', sessionhandler.restrictSuper, api.addEvent);
 

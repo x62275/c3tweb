@@ -1,4 +1,3 @@
-var path = require('path');
 var dbprocedures = require('./dbprocedures');
 
 exports.register = function(req, res) {
@@ -8,32 +7,32 @@ exports.register = function(req, res) {
 		} else { res.redirect('/register'); return; }
 	}
 	res.redirect('/login');
-}
+};
 
 exports.createEvent = function(req,res) {
   if (req.body.name) {
     dbprocedures.eventInsert(req.body.name, req.body.start, req.body.stop, req.body.admin);
   }
   res.redirect('/events');
-}
+};
 
 exports.getEvents = function(req,res) {
   dbprocedures.getEvents(function(err, row) {
     res.send(row);
   }, req.session.user);
-}
+};
 
 exports.getAdminsByEvent = function(req,res) {
   dbprocedures.getAdminsByEvent(function(err,row) {
     res.send(row);
   }, req.body.eventid);
-}
+};
 
 exports.getEventsByAdmin = function(req,res) {
   dbprocedures.getEventsByAdmin(function(err,row) {
     res.send(row);
   }, req.session.user.username);
-}
+};
 
 exports.addEvent = function(req,res) {
   if (req.body.name && req.body.start && req.body.end) {
@@ -44,13 +43,13 @@ exports.addEvent = function(req,res) {
   } else {
     res.send('nope');
   }
-}
+};
 
-exports.grantAdmin = function(req, res) {
+exports.grantAdmin = function(req) {
   if (req.body.username && req.body.eventid) {
     dbprocedures.grantAdmin(req.body.username,req.body.eventid);
   }
-}
+};
 
 
 //MAKES THE SERVER SPLODE
@@ -64,13 +63,13 @@ exports.addChallenge = function(req,res) {
             if (entry.username == req.session.user.username) {
               dbprocedures.challengeInsert(req.body.name, req.body.flag, req.body.value, req.body.eventid, req.body.description);
               res.send('noerror');
-            } else { res.send('error'); }
+            } else { res.send('error'); } // this logic is wrong.. we do not want to send an error the first time our admin isn't in the rows
           });
         }, req.body.eventid);
       } else { res.send('error'); }
     }, req.body.eventid, req.body.name);
   } else { res.send('error'); }
-}
+};
 
 
 exports.getChallenges = function(req, res) {
@@ -81,7 +80,7 @@ exports.getChallenges = function(req, res) {
       }, row.id, req.session.user);
     }
   }, req.body.eventid, req.session.user);
-}
+};
 
 exports.submitChallenge = function(req, res) {
   var sub = req.body.submission;
@@ -89,7 +88,7 @@ exports.submitChallenge = function(req, res) {
   exports.checkSubmission(function (err, row) {
     res.send(row);
   }, chalid, req.session.user, sub);
-}
+};
 
 exports.checkSubmission = function (fn, chalid, user, sub) {
   //checkSubmission
@@ -112,4 +111,4 @@ exports.checkSubmission = function (fn, chalid, user, sub) {
       }
     });
   }
-}
+};
