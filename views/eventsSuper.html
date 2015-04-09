@@ -1,172 +1,48 @@
 <html>
 <head>
+    <title>BitsForEveryone!</title>
 
-	<title>BitsForEveryone!</title>
-	<!-- Bootstrap core CSS -->
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
-
 <body>
 
+
 <nav class="navbar navbar-inverse navbar-fixed-top">
-	<div class="container">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#">BitsForEveryone</a>
-		</div>
-		<div id="navbar" class="collapse navbar-collapse">
-			<ul class="nav navbar-nav">
-				<li><a href="/">Home</a></li>
-				<li class="active"><a href="/events">Play!</a></li>
-				<li class="active"><a href="/admin">Admin</a></li>
-				<li><a href = "/logout">Logout</a></li>
-			</ul>
-		</div><!--/.nav-collapse -->
-	</div>
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">BitsForEveryone</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+                <li class="active"><a href="/events">Play!</a></li>
+                <li class="active"><a href="/admin">Admin</a></li>
+                <li><a href = "/logout">Logout</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
 </nav>
 
 <div class="container"><br><br><br>
-	<div id = "scorebox"></div>
+    <div id = "scorebox"></div>
 
-	<div id = "events">
-		<div class = "subbox"></div>
-		<table id = "eventTable" class = "table table-striped"></table>
-	</div>
-	<form id = "subform"></form>
-	<div id = "back"></div>
+    <div id = "events">
+        <div class = "subbox"></div>
+        <table id = "eventTable" class = "table table-striped"></table>
+    </div>
+    <form id = "subform"></form>
+    <div id = "status"></div>
+    <div id = "back"></div>
 </div>
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script>
-
-	function getScore() {
-		var id = $(".subbox").text();
-		$.ajax({
-			url: "/api/getscores",
-			dataType: "json",
-			data: {eventid: id},
-			method: "POST"
-		}).done(function (data) {
-			$("#score").html(''+data['userscore']);
-		});
-	}
-
-	$("form#subform").submit(function(e) {
-		$.ajax({
-			type: "POST",
-			url: "/api/submit",
-			data: $("form#subform").serialize(),
-			dataType: "JSON",
-			success: function(data) {
-				if (data) {
-					$("form#subform").append(' Correct!').fadeOut(1500);
-					setTimeout(getChallenges( $(".subbox").text() ), 2000);
-					getScore();
-				}
-				else {
-					$("form#subform").append(' Nope...').fadeOut(1500);
-				}
-			}
-		});
-		e.preventDefault();
-	});
-
-	function getAdminsByEvent(id) {
-		$.ajax({
-			url: "/api/events/admins",
-			dataType: "json",
-			method: "POST",
-			data: {eventid: id}
-		}).done(function (data) {
-			var a = $("#admins");
-			a.append('Admins: ');
-			data.forEach(function (entry) {
-				a.append(entry.username+' ');
-			});
-			a.append('<br><br>');
-		});
-	}
-
-	function generateChalbox(id,n,d) {
-		var subform = $("form#subform");
-		subform.empty();
-		var s = n+": <input type = 'text' name = 'submission'><input type = 'hidden' name = 'chalid' value = "+id+"><input type = 'submit'></form><br>";
-		subform.append(s);
-		subform.append(d);
-		subform.show();
-	}
-
-	function getChallenges(id) {
-		var events = $("#events");
-		var back = $("#back");
-		events.empty();
-		back.empty();
-		$("#scorebox").html('Score: <div id = "score"> </div>');
-		var s = '<div class = "subbox" style="display:none">'+id+'</div>';
-		s += '<table id = "challengeTable"  class = "table table-striped">';
-		s += '<tr>';
-		s += '<td>Challenge Name</td>';
-		s += '<td>Category</td>';
-		s += '<td>Value</td>';
-		s += '</tr>';
-		s += '</table>';
-		s += '<div id = "admins"></div>';
-		events.append(s);
-		getScore();
-		$.ajax({
-			url: "/api/challenges",
-			dataType: "json",
-			method: "POST",
-			data: {eventid: id}
-		}).done(function (data) {
-			data.forEach(function (entry) {
-				var s = '<tr><td><div id = "subtoggle" onclick = \'generateChalbox('+entry.id+', "'+entry.name+'", "'+entry.description+'")\'>'+entry.name+'</div></td>';
-				s+= '<td>'+entry.category+'</td>';
-				s+= '<td>'+entry.value+'</td></tr>';
-				$("#challengeTable").append(s);
-			});
-		});
-
-		getAdminsByEvent(id);
-
-		back.append("<div id = 'getEvents' onclick = 'getEvents()'>Back</div>");
-	}
-
-	function getEvents() {
-		var events = $("#events");
-		events.empty();
-		$("form#subform").empty();
-		$("#scorebox").empty();
-		var s = '<table id = "eventTable"  class = "table table-striped">';
-		s += '<tr>';
-		s += '<td>Event Name</td>';
-		s += '<td>Start</td>';
-		s += '<td>End</td>';
-		s += '<td>Go!</td>';
-		s += '</tr>';
-		s += '</table>';
-		events.append(s);
-
-		$.ajax({
-			url: "/api/events",
-			dataType: "json"
-		}).done(function (data) {
-			data.forEach(function (entry) {
-				var s = '<tr><td>'+entry.name+'</td>';
-				s+= '<td>'+entry.start+'</td>';
-				s+= '<td>'+entry.end+'</td>';
-				s+= '<td><div class = "thisbutton" onclick="getChallenges('+entry.id+')"> Click me! </div></td></tr>';
-				$("#eventTable").append(s);
-			});
-		});
-	}
-
-	getEvents();
-
-</script></body>
+<script src="/js/events.js"></script>
+</body>
 </html>

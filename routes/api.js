@@ -85,7 +85,8 @@ exports.submitChallenge = function(req, res) {
   var sub = req.body.submission;
   var chalid = req.body.chalid;
   exports.checkSubmission(function (err, row) {
-    res.send(row);
+    if(row){res.send({'status':'success'})}
+    else{res.send({'status':'fail'})};
   }, chalid, req.session.user, sub);
 };
 
@@ -108,6 +109,7 @@ exports.checkSubmission = function (fn, chalid, user, sub) {
           }
         }); 
       }
+      else return fn(err);
     });
   }
 };

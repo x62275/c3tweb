@@ -4,6 +4,8 @@
 
 TODO:
 
+1. All fields for challenge must be added to admin page (see schema)
+
 1. Superuser page can assign admins to event
     (create superuser page)
 

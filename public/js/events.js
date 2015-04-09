@@ -24,7 +24,6 @@
             <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
                 <li class="active"><a href="/events">Play!</a></li>
-                <li class="active"><a href="/admin">Admin</a></li>
                 <li><a href = "/logout">Logout</a></li>
             </ul>
         </div><!--/.nav-collapse -->

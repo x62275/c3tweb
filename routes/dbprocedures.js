@@ -146,7 +146,7 @@ exports.getChallenges = function(fn, eventID, user) {
   if (user.priv >= 0) {
     //Make * more specific
     //console.log(user.username+" requests challenges from event #"+eventID);
-    db.all('SELECT * FROM challenges WHERE NOT EXISTS (SELECT 1 FROM solves WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
+    db.all('SELECT id, name, description, category, value FROM challenges WHERE NOT EXISTS (SELECT 1 FROM solves WHERE username = ? AND solves.chalid = challenges.id) AND eventid = ?', user.username, eventID, function(err, row) {
       if (!row) return fn(err);
       //console.log(row);
       return fn(null, row);
