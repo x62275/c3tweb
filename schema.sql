@@ -30,9 +30,11 @@ CREATE TABLE "solves" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
 	"username" TEXT,
 	"chalid" INTEGER,
-    "time" DATE,
+	"eventid", INTEGER,
+    	"time" DATE,
 	FOREIGN KEY (username) REFERENCES users(username),
 	FOREIGN KEY (chalid) REFERENCES challenges(id)
+	FOREIGN KEY (eventid) REFERENCES events(id)
 );
 
 CREATE TABLE "admins" (
